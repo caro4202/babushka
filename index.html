@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Hent JSON</title>
+
+
+    <style>
+        body {
+            background-color: grey;
+        }
+
+        article {
+            padding: 1em;
+            background-color: lightgray;
+        }
+
+        article:nth-child(odd) {
+            background: white;
+        }
+
+        .data-container article img {
+            width: 100%;
+        }
+
+        .data-container {
+            margin: 0 auto;
+            display: grid;
+        }
+
+        @media screen and (min-width:580px) {
+            .data-container {
+                padding-left: 10%;
+                padding-right: 10%;
+                grid-gap: 6px;
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        #modal {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            background-color: rgba(0, 0, 0, .7);
+            text-align: center;
+            /*display: none;*/
+            transition: all 1s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #modal-content {
+            width: 70vw;
+            height: 70vh;
+            background-color: rgba(250, 250, 250, 1);
+            margin: auto;
+        }
+
+        #modal.vis {
+            /* display: block;*/
+            opacity: 1;
+            pointer-events: all;
+        }
+    </style>
+</head>
+
+
+<header>
+    <h2>Bistro Babushka</h2>
+    <h1></h1>
+    <nav>
+        <button class="menu-item" data-kategori="alle">Alle</button>
+        <button class="menu-item" data-kategori="forretter">Forretter</button>
+        <button class="menu-item" data-kategori="sideorders">Sideorders</button>
+        <button class="menu-item" data-kategori="hovedretter">Hovedretter</button>
+        <button class="menu-item" data-kategori="desserter">Desserter</button>
+        <button class="menu-item" data-kategori="drikkevarer">Drikkevarer</button>
+    </nav>
+
+</header>
+
+<body>
+    <section id="modal">
+        <button>Close</button>
+        <div id="modal-content">
+            <h2 class="modal-navn"></h2>
+            <img class="modal-billede" src="" alt="">
+        </div>
+    </section>
+    <section class="data-container"></section>
+
+    <template class="data-template">
+        <article>
+            <img src="" alt="">
+            <!--<div class="data data-navn"></div><br>-->
+            <h2></h2>
+            <div class="data data-id"></div>
+            <div class="data data-kategori"></div>
+            <div class="data data-kortbeskrivelse"></div><br>
+            <div class="data data-pris"></div>
+            <div class="data data-langbeskrivelse"></div>
+            <div class="data data-oprindelsesregion"></div>
+
+        </article>
+
+
+    </template>
+
+    <script>
+        let retter;
+        let modtager = document.querySelector(".data-container"),
+            kategoriFilter = "alle"; //filter variabel
+        document.addEventListener("DOMContentLoaded", hentJson);
+
+
+
+        async function hentJson() {
+            let myJson = await fetch("json/menu.json");
+            retter = await myJson.json();
+            console.log(retter);
+
+            visRetter();
+        }
+        document.querySelectorAll(".menu-item").forEach(knap => {
+            knap.addEventListener("click", filtrering)
+        });
+
+        function filtrering() {
+            modtager.textContent = "";
+            kategoriFilter = this.getAttribute("data-kategori");
+            visRetter();
+        }
+
+        function visRetter() {
+
+            let temp = document.querySelector(".data-template");
+            document.querySelector("header h1").textContent = kategoriFilter;
+            //løb json filen igennem og lav en klon
+
+            retter.forEach(ret => {
+                if (ret.kategori == kategoriFilter || kategoriFilter == "alle") {
+                    let klon = temp.cloneNode(true).content;
+
+                    //indsæt data
+
+                    // klon.querySelector(".data-id").textContent = ret.id;
+                    //klon.querySelector(".data-kategori").textContent = ret.kategori;
+                    klon.querySelector("h2").textContent = ret.navn;
+                    klon.querySelector(".data-pris").textContent = "Pris: " + ret.pris + ",-";
+                    klon.querySelector(".data-kortbeskrivelse").textContent = ret.kortbeskrivelse;
+                    //klon.querySelector(".data-langbeskrivelse").textContent = ret.langbeskrivelse;
+                    //klon.querySelector(".data-oprindelsesregion").textContent = ret.oprindelsesregion;
+                    klon.querySelector("img").src = "imgs/small/" + ret.billede + "-sm.jpg";
+
+                    // placer klon i html
+                    modtager.appendChild(klon);
+                }
+            })
+
+            function visModal(menu) {
+                modal.classList.add("vis");
+                modal.querySelector(".modal-navn").textContent = menu.navn;
+                modal.querySelector(".modal-billede").src = menu.billede;
+                modal.querySelector(".modal-billede").alt = "Foto af" + menu.navn;
+                modal.querySelector("button").addEventListener("click", skjulModal);
+            }
+
+            function skjulModal() {
+                modal.classList.remove("vis");
+                //window.scrollTo(0);
+            }
+        }
+    </script>
+
+
+
+</body>
+
+</html>
