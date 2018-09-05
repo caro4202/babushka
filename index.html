@@ -153,6 +153,9 @@
                     //klon.querySelector(".data-langbeskrivelse").textContent = ret.langbeskrivelse;
                     //klon.querySelector(".data-oprindelsesregion").textContent = ret.oprindelsesregion;
                     klon.querySelector("img").src = "imgs/small/" + ret.billede + "-sm.jpg";
+                    klon.querySelector("img").addEventListener("click", () => {
+                        visModal(menu);
+                    });
 
                     // placer klon i html
                     modtager.appendChild(klon);
@@ -160,7 +163,7 @@
             })
 
             function visModal(menu) {
-                modal.classList.add("vis");
+                modal.classList.add(".vis");
                 modal.querySelector(".modal-navn").textContent = menu.navn;
                 modal.querySelector(".modal-billede").src = menu.billede;
                 modal.querySelector(".modal-billede").alt = "Foto af" + menu.navn;
